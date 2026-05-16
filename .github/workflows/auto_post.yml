@@ -1,0 +1,46 @@
+﻿name: AI Shorts Post (Dogs JP)
+
+on:
+  schedule:
+    # 10:00, 20:00, 22:00 JST (UTC 1:00, 11:00, 13:00)
+    - cron: '0 1,11,13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-post:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg fonts-liberation fonts-noto-cjk
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Auto Post
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_DOGS_JP }}
+        PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY_DOGS_JP }}
+        YOUTUBE_CLIENT_ID_DOGS_JP: ${{ secrets.YOUTUBE_CLIENT_ID_DOGS_JP }}
+        YOUTUBE_CLIENT_SECRET_DOGS_JP: ${{ secrets.YOUTUBE_CLIENT_SECRET_DOGS_JP }}
+        YOUTUBE_REFRESH_TOKEN_DOGS_JP: ${{ secrets.YOUTUBE_REFRESH_TOKEN_DOGS_JP }}
+        GITHUB_ACTIONS: "true"
+        PYTHONUNBUFFERED: "1"
+      run: |
+        python auto_main.py
+

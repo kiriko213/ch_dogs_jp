@@ -1,9 +1,9 @@
-﻿name: AI Shorts Post (Dogs JP)
+name: AI Shorts Post (Dogs JP)
 
 on:
   schedule:
     # 10:00, 20:00, 22:00 JST (UTC 1:00, 11:00, 13:00)
-    - cron: '0 1,11,13 * * *'
+    - cron: '0 23,8,12 * * *'
   workflow_dispatch:
 
 permissions:
@@ -43,4 +43,5 @@ jobs:
         PYTHONUNBUFFERED: "1"
       run: |
         python auto_main.py
+
 

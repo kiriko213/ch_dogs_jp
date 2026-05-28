@@ -1,15 +1,16 @@
-﻿{
+{
     "dogs_jp": {
-        "profile_name": "迥ｬ縺ｮ讌ｽ蝨・,
+        "profile_name": "犬の楽園",
         "channel_id": "UCBLi511cyvYi36DPA5jIGTA",
         "voice": "ja-JP-NanamiNeural",
         "bgm": "bgm.mp3",
-        "tags": "#迥ｬ #縺・〓 #縺九ｏ縺・＞ #縺・〓縺ｮ縺・ｋ證ｮ繧峨＠ #dog #Shorts",
+        "tags": "#犬 #いぬ #かわいい #いぬのいる暮らし #dog #Shorts",
         "task_list_name": "My Tasks",
-        "pexels_api_key": "REDACTED_API_KEY",
+        "pexels_api_key": "3OfpfSdk7zLAplKzkkaWa5K4ldXHiomdAyhNcxulIS6T5BMDaHNbGtxR",
         "gemini_api_key": "REDACTED_API_KEY",
         "target_animal": "dog",
-        "forbidden_animals": ["cat", "hamster", "bird"]
+        "forbidden_animals": ["cat", "hamster", "bird"],
+        "google_account": "kiriko324@gmail.com",
+        "gemini_api_key_env_name": "GEMINI_API_KEY_DOGS_JP"
     }
 }
-

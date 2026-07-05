@@ -209,7 +209,7 @@ def generate_viral_script(topic="health", channel_context="", api_key=None, feed
 
 
 
-    model = genai.GenerativeModel('gemini-2.0-flash-lite')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
 
 
@@ -370,52 +370,40 @@ def generate_viral_script(topic="health", channel_context="", api_key=None, feed
 
 
     if language == "ja":
+        prompt = f"""あなたはYouTubeショート動画の台本生成AIです。
 
-        prompt = """あなたはYouTubeショート動画の台本生成AIです。
+テーマ「{topic}」について、日本語で13〜15秒の音声に収まるショート台本を作成してください。
 
-日本語で、13〜15秒の音声に収まるショート台本を作成してください。
+チャンネルの文脈: {channel_context}
+{feedback_section}
 
-
+【厳格な犬特化ルール】
+- あなたは「犬（いぬ）」に関するコンテンツのみを生成するように厳格に制限されています。
+- 猫、鳥、爬虫類、ハムスターなど、他のすべての動物は厳格に禁止されています。
+- もしテーマが一般的な『ペット』や『動物』である場合は、必ず犬に関連した内容に変換して作成してください。
+- どのような状況下でも、犬以外の動物が出力に含まれてはなりません。
 
 【絶対条件】
-
 - 日本語60〜90文字に収める（90文字を超えない）
-
 - 行数は4〜6行
-
 - 1行は短くする
-
 - 説明を長くしない
-
 - 語尾を短くする（〜なんだよ → 〜だよ）
-
 - 余計な前置きは書かない
-
 - 1文を短く区切りすぎない（改行が多すぎると音声が伸びる）
 
-
-
 【内容ルール】
-
 - テーマに対して「1つの事実だけ」を伝える
-
 - 導入 → 事実 → 理由 → まとめ の4ステップ構成
-
 - 導入は短く（例：犬って〇〇するよね）
-
 - 説明は簡潔に
-
 - 最後は軽いまとめで締める
 
-
-
 【出力フォーマット】
-
-TITLE: （短く）
-
+TITLE: （ここに短くキャッチーなタイトル）
 SCRIPT:
-
-（60〜90字の台本）"""
+（ここに60〜90字の台本）
+PexelsKeyword: （動画検索用の英単語。例：dog playing）"""
 
     else:
 
@@ -1264,6 +1252,18 @@ SCRIPT:
 
 
 
+
+        # ポストプロセスフィルター（犬正規化セーフティレイヤー）
+        # 猫、ハムスター、鳥などのキーワードを犬向けの内容に強制置換
+        replacements = {
+            r"猫": "犬", r"ねこ": "いぬ", r"ネコ": "イヌ", r"cat": "dog", r"Cat": "Dog", r"CAT": "DOG",
+            r"ハムスター": "いぬ", r"hamster": "dog", r"Hamster": "Dog",
+            r"鳥": "いぬ", r"とり": "いぬ", r"トリ": "イヌ", r"bird": "dog", r"Bird": "Dog",
+            r"爬虫類": "いぬ", r"reptile": "dog", r"Reptile": "Dog"
+        }
+        for pattern, replacement in replacements.items():
+            content = re.sub(pattern, replacement, content, flags=re.IGNORECASE)
+            title = re.sub(pattern, replacement, title, flags=re.IGNORECASE)
 
         return title, content, keyword
 

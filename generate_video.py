@@ -107,11 +107,42 @@ def create_boxed_text_image(text, size=(1080, 1920), fontsize=60):
 
 async def generate_speech(text, output_path, voice="ja-JP-NanamiNeural", rate="+10%"):
     """
-    edge-ttsを使用して音声を生成する。gTTSは使用しない。
+    音声を生成する。
+    1. VOICEVOX (primary local, fallback if unavailable)
+    2. Edge TTS (secondary fallback)
     """
     lang = "ja" if "ja-JP" in voice else "en"
     clean_text = normalize_text_for_speech(text, language=lang)
     
+    # 1. VOICEVOX (Local engine)
+    if lang == "ja":
+        try:
+            print(f"[TTS] Attempting VOICEVOX for text: '{clean_text[:20]}...'")
+            speaker_id = 2
+            query_res = requests.post(
+                f"http://localhost:50021/audio_query",
+                params={"text": clean_text, "speaker": speaker_id},
+                timeout=3.0
+            )
+            if query_res.status_code == 200:
+                query_data = query_res.json()
+                query_data["speedScale"] = 1.1
+                synth_res = requests.post(
+                    f"http://localhost:50021/synthesis",
+                    params={"speaker": speaker_id},
+                    json=query_data,
+                    timeout=10.0
+                )
+                if synth_res.status_code == 200:
+                    with open(output_path, "wb") as f:
+                        f.write(synth_res.content)
+                    if os.path.exists(output_path) and os.path.getsize(output_path) >= 100:
+                        print("[TTS] VOICEVOX succeeded.")
+                        return output_path
+        except Exception as e:
+            print(f"[TTS_WARN] VOICEVOX failed/unavailable: {e}")
+
+    # 2. Edge TTS (Fallback)
     try:
         communicate = edge_tts.Communicate(clean_text, voice, rate=rate)
         await communicate.save(output_path)

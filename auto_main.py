@@ -13,8 +13,8 @@ from googleapiclient.errors import HttpError
 # Windowsでの文字化け・エンコードエラー対策
 if sys.platform == "win32":
     import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', line_buffering=True)
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', line_buffering=True)
 
 from main import get_authenticated_service, check_youtube_channel, upload_to_youtube, SCOPES_TASKS, SCOPES_YOUTUBE, load_config
 import ai_generator

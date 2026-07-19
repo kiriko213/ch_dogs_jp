@@ -269,7 +269,6 @@ async def run_auto_post(work_dir=".", topic=None):
             bgm_path, 
             video_output_path,
             voice=voice_model,
-            rate=rate_val,
             pitch=pitch_val,
             topic=profile_key,
             work_dir=work_dir

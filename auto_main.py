@@ -176,7 +176,7 @@ async def run_auto_post(work_dir=".", topic=None):
             print("STEP: Audio duration check...")
             temp_audio_path = os.path.join(work_dir, "temp_audio_check.mp3")
             try:
-                await generate_video.generate_speech(script_content, temp_audio_path, voice=voice_model, rate=rate_val, pitch=pitch_val)
+                await generate_video.generate_speech(script_content, temp_audio_path, voice=voice_model, rate=rate_val)
                 from moviepy.editor import AudioFileClip
                 a_clip = AudioFileClip(temp_audio_path)
                 audio_dur = a_clip.duration

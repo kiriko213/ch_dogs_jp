@@ -83,9 +83,22 @@ async def run_auto_post(work_dir=".", topic=None):
     # 言語の判定と音声モデルの厳格割り当て
     language = "ja" if "_jp" in profile_key else "en"
     # 日本向けは Nanami, 海外向けは高品質な Ava を使用
-    voice_model = "ja-JP-NanamiNeural" if language == "ja" else "en-US-AvaNeural"
+    voice_model = p.get("voice") or ("ja-JP-NanamiNeural" if language == "ja" else "en-US-AvaNeural")
     
-    print(f"=== AUTO POST START: {p['profile_name']} (topic: {topic}, lang: {language}, voice: {voice_model}) ===")
+    # configから話速とピッチを取得し、edge-tts向けにフォーマット
+    raw_rate = p.get("rate")
+    if raw_rate:
+        if isinstance(raw_rate, (int, float)):
+            pct = int((raw_rate - 1.0) * 100)
+            rate_val = f"+{pct}%" if pct >= 0 else f"{pct}%"
+        else:
+            rate_val = str(raw_rate)
+    else:
+        rate_val = "+15%" # デフォルトのデュレーションチェック用値
+        
+    pitch_val = p.get("pitch", "+0Hz")
+    
+    print(f"=== AUTO POST START: {p['profile_name']} (topic: {topic}, lang: {language}, voice: {voice_model}, rate: {rate_val}, pitch: {pitch_val}) ===")
     
     try:
         # 1. 認証
@@ -131,7 +144,14 @@ async def run_auto_post(work_dir=".", topic=None):
         # チャンネルの文脈（ターゲット動物など）を構築
         target_animal = p.get('target_animal', 'pets')
         forbidden = ", ".join(p.get('forbidden_animals', []))
-        channel_context = f"This channel is dedicated to {target_animal}. DO NOT mention: {forbidden}."
+        channel_context = (
+            f"This channel is dedicated to {target_animal}. DO NOT mention: {forbidden}.\n"
+            "Strictly include:\n"
+            "1. Create an engaging hook for the first 3 seconds to retain viewers.\n"
+            "2. Use highly natural, conversational Japanese.\n"
+            "3. Use hiragana for complex words to prevent TTS mispronunciation.\n"
+            "4. Strictly keep the total script under 60 characters."
+        )
         
         for attempt in range(1, max_attempts + 1):
             print(f"ATTEMPT {attempt}/{max_attempts}: Generating script...")
@@ -156,7 +176,7 @@ async def run_auto_post(work_dir=".", topic=None):
             print("STEP: Audio duration check...")
             temp_audio_path = os.path.join(work_dir, "temp_audio_check.mp3")
             try:
-                await generate_video.generate_speech(script_content, temp_audio_path, voice=voice_model, rate="+15%")
+                await generate_video.generate_speech(script_content, temp_audio_path, voice=voice_model, rate=rate_val, pitch=pitch_val)
                 from moviepy.editor import AudioFileClip
                 a_clip = AudioFileClip(temp_audio_path)
                 audio_dur = a_clip.duration
@@ -249,6 +269,8 @@ async def run_auto_post(work_dir=".", topic=None):
             bgm_path, 
             video_output_path,
             voice=voice_model,
+            rate=rate_val,
+            pitch=pitch_val,
             topic=profile_key,
             work_dir=work_dir
         )

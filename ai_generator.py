@@ -371,9 +371,7 @@ def generate_viral_script(topic="health", channel_context="", api_key=None, feed
 
     if language == "ja":
         prompt = f"""あなたはYouTubeショート動画の台本生成AIです。
-
 テーマ「{topic}」について、日本語で13〜15秒の音声に収まるショート台本を作成してください。
-
 チャンネルの文脈: {channel_context}
 {feedback_section}
 

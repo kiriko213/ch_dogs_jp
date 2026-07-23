@@ -145,12 +145,7 @@ async def run_auto_post(work_dir=".", topic=None):
         target_animal = p.get('target_animal', 'pets')
         forbidden = ", ".join(p.get('forbidden_animals', []))
         channel_context = (
-            f"This channel is dedicated to {target_animal}. DO NOT mention: {forbidden}.\n"
-            "Strictly include:\n"
-            "1. Create an engaging hook for the first 3 seconds to retain viewers.\n"
-            "2. Use highly natural, conversational Japanese.\n"
-            "3. Use hiragana for complex words to prevent TTS mispronunciation.\n"
-            "4. Strictly keep the total script under 60 characters."
+            f"This channel is dedicated to {target_animal}. DO NOT mention: {forbidden}."
         )
         
         for attempt in range(1, max_attempts + 1):

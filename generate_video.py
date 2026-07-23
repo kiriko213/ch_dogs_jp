@@ -180,7 +180,7 @@ def create_boxed_text_image(text, size=(1080, 1920), fontsize=60):
         
     return img
 
-async def generate_speech(text, output_path, voice="ja-JP-NanamiNeural", rate="+10%"):
+async def generate_speech(text, output_path, voice="ja-JP-NanamiNeural", rate="+10%", pitch="+0Hz"):
     """
     音声を生成する。
     1. VOICEVOX (primary local, fallback if unavailable)
@@ -219,7 +219,7 @@ async def generate_speech(text, output_path, voice="ja-JP-NanamiNeural", rate="+
 
     # 2. Edge TTS (Fallback)
     try:
-        communicate = edge_tts.Communicate(clean_text, voice, rate=rate)
+        communicate = edge_tts.Communicate(clean_text, voice, rate=rate, pitch=pitch)
         await communicate.save(output_path)
         if not os.path.exists(output_path) or os.path.getsize(output_path) < 100:
             raise Exception("Audio generation failed.")
@@ -264,7 +264,7 @@ async def fetch_best_visual(query, api_key, target_animal="dog", forbidden_anima
             continue
     return None, None
 
-async def assemble_video_professional(script, asset_path, asset_type, bgm_path, output_filename, voice="ja-JP-NanamiNeural", topic="", work_dir="."):
+async def assemble_video_professional(script, asset_path, asset_type, bgm_path, output_filename, voice="ja-JP-NanamiNeural", rate="+10%", pitch="+0Hz", topic="", work_dir="."):
     raw_sections = [s.strip() for s in re.split(r'(?<=[。！!？\?\n])', script) if s.strip()]
     if len(raw_sections) > 3:
         n = len(raw_sections)
@@ -279,7 +279,7 @@ async def assemble_video_professional(script, asset_path, asset_type, bgm_path, 
     curr = 0
     for i, txt in enumerate(sections):
         a_path = os.path.join(temp_dir, f"s_{i}.mp3")
-        await generate_speech(txt, a_path, voice=voice)
+        await generate_speech(txt, a_path, voice=voice, rate=rate, pitch=pitch)
         clip = AudioFileClip(a_path)
         audio_clips.append(clip.set_start(curr))
         curr += clip.duration

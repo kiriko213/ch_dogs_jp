@@ -2,7 +2,9 @@
     "dogs_jp": {
         "profile_name": "犬の楽園",
         "channel_id": "UCBLi511cyvYi36DPA5jIGTA",
-        "voice": "ja-JP-NanamiNeural",
+        "voice": "ja-JP-AoiNeural",
+        "rate": "+12%",
+        "pitch": "+2Hz",
         "bgm": "bgm.mp3",
         "tags": "#犬 #いぬ #かわいい #いぬのいる暮らし #dog #Shorts",
         "task_list_name": "My Tasks",

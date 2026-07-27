@@ -178,13 +178,15 @@ async def fetch_best_visual(query, api_key, target_animal="dog", forbidden_anima
     
     for q in queries:
         try:
-            v_url = f"https://api.pexels.com/videos/search?query={q}&per_page=15&orientation=portrait"
+            page = random.randint(1, 3)
+            v_url = f"https://api.pexels.com/videos/search?query={q}&per_page=15&page={page}&orientation=portrait"
             res = requests.get(v_url, headers=headers)
             res.raise_for_status()
             v_data = res.json()
             if v_data.get('videos'):
                 videos = v_data['videos']
-                target_video = next((v for v in videos if v['duration'] >= 12), videos[0])
+                valid_videos = [v for v in videos if v['duration'] >= 12]
+                target_video = random.choice(valid_videos) if valid_videos else random.choice(videos)
                 best_file = [f for f in target_video['video_files'] if f['width'] >= 720][0]
                 path = os.path.join(work_dir, "temp_bg.mp4")
                 with open(path, 'wb') as f: f.write(requests.get(best_file['link']).content)

@@ -234,8 +234,8 @@ async def assemble_video_professional(script, asset_path, asset_type, bgm_path, 
             new_h = int(clip.w / target_ratio)
             bg_cropped = clip.crop(x_center=clip.w/2, y_center=clip.h/2, width=clip.w, height=new_h)
             
-        # 2. トリミングした映像を、縦横比を一切歪ませずにジャスト1080x1920にリサイズする
-        bg = bg_cropped.resize(newsize=(1080, 1920))
+        # 2. トリミングした映像を、縦横比を一切歪ませずにジャスト1080x1920にリサイズし、左右反転を適用
+        bg = bg_cropped.resize(newsize=(1080, 1920)).fx(vfx.mirror_x)
         bg = bg.fx(vfx.loop, duration=duration) if bg.duration < duration else bg.subclip(0, duration)
     else:
         bg = ColorClip(size=(1080, 1920), color=(30, 30, 30)).set_duration(duration)

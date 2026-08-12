@@ -75,7 +75,15 @@ async def run_auto_post(work_dir=".", topic=None):
             if "_en" in profile_key:
                 topics = ["Funny dog facts", "Puppy joy", "Dog training tips", "Smart dog tricks", "Living with dogs"]
             else:
-                topics = ["犬の豆知識", "子犬の癒やし", "犬のしつけ", "賢い犬 of the day", "犬との暮らし"]
+                topics = [
+                    "犬の歴史（起源や人と犬の共生の歩み）",
+                    "犬の心理・感情表現（仕草や鳴き声に隠された本音）",
+                    "犬の行動の謎（不思議な習性や癖の理由）",
+                    "犬と人間との関係（犬が人に与える好影響、共生のトリビア）",
+                    "意外な犬種トリビア・ギネス記録（世界一の記録や歴史）",
+                    "犬のしつけ・豆知識",
+                    "子犬の癒やしと暮らし"
+                ]
         else:
             topics = ["Beautiful nature spots", "Aesthetic scenes"]
         topic = random.choice(topics)

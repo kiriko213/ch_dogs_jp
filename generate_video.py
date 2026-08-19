@@ -134,22 +134,14 @@ def create_boxed_text_image(text, size=(1080, 1920), fontsize=60):
     line_spacing = 30
     total_text_height = sum([draw.textbbox((0, 0), l, font=font)[3] - draw.textbbox((0, 0), l, font=font)[1] for l in lines]) + line_spacing * (len(lines) - 1)
     
-    box_width = 950
-    box_height = total_text_height + 120
-    box_x = (size[0] - box_width) // 2
-    box_y = (size[1] - box_height) // 2
+    # 画面上端から15%程度の位置に配置（被写体を隠さないため）
+    current_y = int(size[1] * 0.15)
     
-    overlay = Image.new('RGBA', size, (0, 0, 0, 0))
-    overlay_draw = ImageDraw.Draw(overlay)
-    overlay_draw.rounded_rectangle([box_x, box_y, box_x + box_width, box_y + box_height], radius=40, fill=(0, 0, 0, 160))
-    img = Image.alpha_composite(img, overlay)
-    draw = ImageDraw.Draw(img)
-    
-    current_y = box_y + 60
     for line in lines:
         w = draw.textbbox((0, 0), line, font=font)[2]
         x = (size[0] - w) // 2
-        draw.text((x, current_y), line, font=font, fill=(255, 255, 255), stroke_width=2, stroke_fill=(0,0,0))
+        # 背景ボックスを削除し、視認性を高めるためアウトラインを太くする
+        draw.text((x, current_y), line, font=font, fill=(255, 255, 255), stroke_width=6, stroke_fill=(0,0,0))
         current_y += draw.textbbox((0, 0), line, font=font)[3] - draw.textbbox((0, 0), line, font=font)[1] + line_spacing
         
     return img
@@ -311,8 +303,21 @@ async def assemble_video_professional(script, asset_path, asset_type, bgm_path, 
             print(f"BGM loading failed: {e}")
 
     try:
+        # --- Python 3.14 + MoviePy 1.0.3 の fps消失バグを回避するパッチ ---
+        import moviepy.video.VideoClip
+        if not hasattr(moviepy.video.VideoClip, '_is_fps_patched'):
+            _orig_ffmpeg_write = moviepy.video.VideoClip.ffmpeg_write_video
+            def _patched_ffmpeg_write(clip, filename, fps, *args, **kwargs):
+                if fps is None:
+                    fps = getattr(clip, 'fps', 30)
+                return _orig_ffmpeg_write(clip, filename, fps, *args, **kwargs)
+            moviepy.video.VideoClip.ffmpeg_write_video = _patched_ffmpeg_write
+            moviepy.video.VideoClip._is_fps_patched = True
+        # --- パッチここまで ---
+
         video = CompositeVideoClip([bg] + subs).set_audio(final_audio).set_duration(duration)
         video.write_videofile(output_filename, fps=30, codec="libx264", audio_codec="aac", ffmpeg_params=["-pix_fmt", "yuv420p", "-movflags", "faststart"])
+
         
         # クリップの解放 (Windowsでのファイルロック対策)
         video.close()
